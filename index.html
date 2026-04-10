@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Project Management System</title>
+
+<style>
+body{margin:0;font-family:Arial;background:#eef2f7}
+
+/* LOGIN */
+.login{
+display:flex;
+justify-content:center;
+align-items:center;
+height:100vh;
+background:linear-gradient(135deg,#111827,#2563eb);
+}
+
+.box{
+background:#fff;
+padding:25px;
+border-radius:15px;
+width:90%;
+max-width:360px;
+text-align:center;
+box-shadow:0 10px 25px rgba(0,0,0,0.2);
+}
+
+.logo{
+width:80px;
+margin-bottom:10px;
+}
+
+input,button{
+width:100%;
+padding:14px;
+margin:8px 0;
+border-radius:10px;
+font-size:16px;
+border:1px solid #ccc;
+}
+
+button{
+background:#2563eb;
+color:#fff;
+border:none;
+font-weight:bold;
+}
+
+.hidden{display:none}
+
+/* HEADER */
+.header{
+background:#111827;
+color:#fff;
+padding:15px;
+text-align:center;
+position:sticky;
+top:0;
+font-size:18px;
+}
+
+/* LAYOUT */
+.container{padding:10px}
+
+.row{display:flex;gap:10px}
+.row button{width:50%}
+
+/* CARD */
+.card{
+background:#fff;
+padding:14px;
+margin:10px 0;
+border-radius:12px;
+box-shadow:0 2px 6px rgba(0,0,0,0.08);
+}
+
+.open{color:green;font-weight:bold}
+.closed{color:red;font-weight:bold}
+
+a{color:#2563eb;text-decoration:none}
+
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN PAGE -->
+<div id="loginPage" class="login">
+<div class="box">
+
+<img class="logo" src="logo1.png">
+
+<h2>PROJECT MANAGEMENT</h2>
+
+<input id="user" placeholder="Username">
+<input id="pass" type="password" placeholder="Password">
+
+<button onclick="login()">Login</button>
+
+</div>
+</div>
+
+<!-- DASHBOARD -->
+<div id="dashboard" class="hidden">
+
+<div class="header">
+📁 PROJECT MANAGEMENT SYSTEM
+</div>
+
+<div class="container">
+
+<div class="row">
+<button onclick="loadProjects()">All Projects</button>
+<button onclick="toggleSearch()">Search 🔍</button>
+</div>
+
+<div id="searchBox" class="hidden">
+<input id="search" placeholder="Search No / Name / Mobile" onkeyup="search()">
+</div>
+
+<div id="list"></div>
+
+</div>
+</div>
+
+<script>
+
+/* 🔥 YOUR GOOGLE SHEET ID */
+const SHEET_ID="1izeFN_u9rsSJfU1GWEsgUPY4z1oXirlT8rxZsPd5GLM";
+
+/* API */
+const API_URL=`https://docs.google.com/spreadsheets/d/${"1izeFN_u9rsSJfU1GWEsgUPY4z1oXirlT8rxZsPd5GLM"}/gviz/tq?tqx=out:json`;
+
+let projects=[];
+
+/* LOGIN */
+function login(){
+if(user.value==="admin" && pass.value==="Abraaj@2005"){
+loginPage.classList.add("hidden");
+dashboard.classList.remove("hidden");
+}else{
+alert("Invalid Login");
+}
+}
+
+/* LOAD PROJECTS FROM SHEET */
+async function loadProjects(){
+
+try{
+let res=await fetch(API_URL);
+let text=await res.text();
+
+/* CLEAN JSON */
+let jsonData=text.substring(text.indexOf("{"),text.lastIndexOf("}")+1);
+let json=JSON.parse(jsonData);
+
+let rows=json.table.rows || [];
+
+/* COLUMN MAPPING */
+projects=rows.map(r=>({
+mob:r.c[0]?.v||"",
+no:r.c[1]?.v||"",
+name:r.c[2]?.v||"",
+location:r.c[3]?.v||"",
+contact:r.c[4]?.v||"",
+status:r.c[5]?.v||"",
+map:r.c[6]?.v||""
+}));
+
+render(projects);
+
+}catch(e){
+alert("❌ Sheet Error - Check Share Settings");
+console.log(e);
+}
+}
+
+/* SEARCH TOGGLE */
+function toggleSearch(){
+searchBox.classList.toggle("hidden");
+list.innerHTML="";
+}
+
+/* SEARCH */
+function search(){
+
+let v=search.value.toLowerCase();
+
+if(v===""){list.innerHTML="";return;}
+
+let result=projects.filter(p=>
+p.no.toLowerCase().includes(v)||
+p.name.toLowerCase().includes(v)||
+p.mob.toLowerCase().includes(v)
+);
+
+render(result);
+}
+
+/* RENDER DATA */
+function render(data){
+
+list.innerHTML="";
+
+data.forEach(p=>{
+
+let statusClass = p.status.toLowerCase()==="open" ? "open":"closed";
+
+list.innerHTML+=`
+<div class="card">
+
+<b>📌 ${p.no}</b><br>
+👤 ${p.name}<br>
+
+📱 ${p.mob}<br>
+📞 <a href="tel:${p.contact}">${p.contact}</a><br>
+
+📍 ${p.location}<br>
+
+<a href="${p.map}" target="_blank">Open Map</a><br><br>
+
+<div class="${statusClass}">
+⚡ ${p.status}
+</div><br>
+
+<button onclick="wa('${p.no}','${p.name}','${p.contact}','${p.map}')">
+WhatsApp Share
+</button>
+
+</div>
+`;
+});
+}
+
+/* WHATSAPP SHARE */
+function wa(no,name,mobile,map){
+
+let msg=`*PROJECT DETAILS*%0A
+No: ${no}%0A
+Name: ${name}%0A
+Mobile: ${mobile}%0A
+Map: ${map}`;
+
+window.open(`https://wa.me/?text=${msg}`,"_blank");
+}
+
+</script>
+
+</body>
+</html>
