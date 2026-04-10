@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Management</title>
+<title>Project Management System</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#eef2f7}
@@ -92,10 +92,9 @@ a{color:#2563eb;text-decoration:none}
 
 <script>
 
-/* ✅ YOUR SHEET ID */
+/* ✅ GOOGLE SHEET ID */
 const SHEET_ID = "1izeFN_u9rsSJfU1GWEsgUPY4z1oXirlT8rxZsPd5GLM";
 
-/* API */
 const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
 let projects=[];
@@ -118,21 +117,20 @@ try{
 let res = await fetch(API_URL);
 let text = await res.text();
 
-/* SAFE JSON PARSE */
 let jsonData = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
 let json = JSON.parse(jsonData);
 
 let rows = json.table.rows || [];
 
-/* MAP 1200+ DATA */
+/* ✅ UPDATED COLUMN MAPPING */
 projects = rows.map(r => ({
-mob: r.c[0]?.v || "",
-no: r.c[1]?.v || "",
-name: r.c[2]?.v || "",
-location: r.c[3]?.v || "",
-contact: r.c[4]?.v || "",
-status: r.c[5]?.v || "",
-map: r.c[6]?.v || ""
+mob: r.c[0]?.v || "",          // Mobile No
+no: r.c[1]?.v || "",           // Project Serial Number
+name: r.c[2]?.v || "",         // Client Name
+location: r.c[3]?.v || "",     // Location
+contact: r.c[4]?.v || "",      // Contact
+status: r.c[5]?.v || "",       // Site Status (Open/Close)
+map: r.c[6]?.v || ""           // Map
 }));
 
 render(projects);
@@ -171,7 +169,7 @@ list.innerHTML="";
 
 data.forEach(p=>{
 
-let statusClass = p.status.toLowerCase()==="open" ? "open":"closed";
+let statusClass = (p.status.toLowerCase()==="open") ? "open" : "closed";
 
 list.innerHTML+=`
 <div class="card">
@@ -179,10 +177,10 @@ list.innerHTML+=`
 <b>📌 ${p.no}</b><br>
 👤 ${p.name}<br>
 
-📱 ${p.mob}<br>
-📞 <a href="tel:${p.contact}">${p.contact}</a><br>
+📱 Mobile: ${p.mob}<br>
+📞 Contact: <a href="tel:${p.contact}">${p.contact}</a><br>
 
-📍 ${p.location}<br>
+📍 Location: ${p.location}<br>
 
 <a href="${p.map}" target="_blank">Open Map</a><br><br>
 
@@ -203,8 +201,8 @@ WhatsApp Share
 function wa(no,name,mobile,map){
 
 let msg=`*PROJECT DETAILS*%0A
-No: ${no}%0A
-Name: ${name}%0A
+Project No: ${no}%0A
+Client: ${name}%0A
 Mobile: ${mobile}%0A
 Map: ${map}`;
 
