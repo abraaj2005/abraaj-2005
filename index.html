@@ -3,65 +3,37 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Project Management System</title>
+<title>Project Management</title>
 
 <style>
 body{margin:0;font-family:Arial;background:#eef2f7}
 
 /* LOGIN */
 .login{
-display:flex;
-justify-content:center;
-align-items:center;
-height:100vh;
+display:flex;justify-content:center;align-items:center;height:100vh;
 background:linear-gradient(135deg,#111827,#2563eb);
 }
 
 .box{
-background:#fff;
-padding:25px;
-border-radius:15px;
-width:90%;
-max-width:360px;
+background:#fff;padding:25px;border-radius:15px;width:90%;max-width:360px;
 text-align:center;
-box-shadow:0 10px 25px rgba(0,0,0,0.2);
-}
-
-.logo{
-width:80px;
-margin-bottom:10px;
 }
 
 input,button{
-width:100%;
-padding:14px;
-margin:8px 0;
-border-radius:10px;
-font-size:16px;
-border:1px solid #ccc;
+width:100%;padding:14px;margin:8px 0;border-radius:10px;
+border:1px solid #ccc;font-size:16px;
 }
 
-button{
-background:#2563eb;
-color:#fff;
-border:none;
-font-weight:bold;
-}
+button{background:#2563eb;color:#fff;border:none;font-weight:bold}
 
 .hidden{display:none}
 
 /* HEADER */
 .header{
-background:#111827;
-color:#fff;
-padding:15px;
-text-align:center;
-position:sticky;
-top:0;
-font-size:18px;
+background:#111827;color:#fff;padding:15px;text-align:center;
+position:sticky;top:0;
 }
 
-/* LAYOUT */
 .container{padding:10px}
 
 .row{display:flex;gap:10px}
@@ -69,10 +41,7 @@ font-size:18px;
 
 /* CARD */
 .card{
-background:#fff;
-padding:14px;
-margin:10px 0;
-border-radius:12px;
+background:#fff;padding:14px;margin:10px 0;border-radius:12px;
 box-shadow:0 2px 6px rgba(0,0,0,0.08);
 }
 
@@ -86,11 +55,9 @@ a{color:#2563eb;text-decoration:none}
 
 <body>
 
-<!-- LOGIN PAGE -->
+<!-- LOGIN -->
 <div id="loginPage" class="login">
 <div class="box">
-
-<img class="logo" src="logo1.png">
 
 <h2>PROJECT MANAGEMENT</h2>
 
@@ -105,9 +72,7 @@ a{color:#2563eb;text-decoration:none}
 <!-- DASHBOARD -->
 <div id="dashboard" class="hidden">
 
-<div class="header">
-📁 PROJECT MANAGEMENT SYSTEM
-</div>
+<div class="header">📁 PROJECT MANAGEMENT SYSTEM</div>
 
 <div class="container">
 
@@ -127,11 +92,11 @@ a{color:#2563eb;text-decoration:none}
 
 <script>
 
-/* 🔥 YOUR GOOGLE SHEET ID */
-const SHEET_ID="1izeFN_u9rsSJfU1GWEsgUPY4z1oXirlT8rxZsPd5GLM";
+/* ✅ YOUR SHEET ID */
+const SHEET_ID = "1izeFN_u9rsSJfU1GWEsgUPY4z1oXirlT8rxZsPd5GLM";
 
 /* API */
-const API_URL=`https://docs.google.com/spreadsheets/d/${"1izeFN_u9rsSJfU1GWEsgUPY4z1oXirlT8rxZsPd5GLM"}/gviz/tq?tqx=out:json`;
+const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json`;
 
 let projects=[];
 
@@ -145,28 +110,29 @@ alert("Invalid Login");
 }
 }
 
-/* LOAD PROJECTS FROM SHEET */
+/* LOAD DATA */
 async function loadProjects(){
 
 try{
-let res=await fetch(API_URL);
-let text=await res.text();
 
-/* CLEAN JSON */
-let jsonData=text.substring(text.indexOf("{"),text.lastIndexOf("}")+1);
-let json=JSON.parse(jsonData);
+let res = await fetch(API_URL);
+let text = await res.text();
 
-let rows=json.table.rows || [];
+/* SAFE JSON PARSE */
+let jsonData = text.substring(text.indexOf("{"), text.lastIndexOf("}") + 1);
+let json = JSON.parse(jsonData);
 
-/* COLUMN MAPPING */
-projects=rows.map(r=>({
-mob:r.c[0]?.v||"",
-no:r.c[1]?.v||"",
-name:r.c[2]?.v||"",
-location:r.c[3]?.v||"",
-contact:r.c[4]?.v||"",
-status:r.c[5]?.v||"",
-map:r.c[6]?.v||""
+let rows = json.table.rows || [];
+
+/* MAP 1200+ DATA */
+projects = rows.map(r => ({
+mob: r.c[0]?.v || "",
+no: r.c[1]?.v || "",
+name: r.c[2]?.v || "",
+location: r.c[3]?.v || "",
+contact: r.c[4]?.v || "",
+status: r.c[5]?.v || "",
+map: r.c[6]?.v || ""
 }));
 
 render(projects);
@@ -177,20 +143,19 @@ console.log(e);
 }
 }
 
-/* SEARCH TOGGLE */
+/* SEARCH */
 function toggleSearch(){
 searchBox.classList.toggle("hidden");
 list.innerHTML="";
 }
 
-/* SEARCH */
 function search(){
 
-let v=search.value.toLowerCase();
+let v = search.value.toLowerCase();
 
 if(v===""){list.innerHTML="";return;}
 
-let result=projects.filter(p=>
+let result = projects.filter(p=>
 p.no.toLowerCase().includes(v)||
 p.name.toLowerCase().includes(v)||
 p.mob.toLowerCase().includes(v)
@@ -199,7 +164,7 @@ p.mob.toLowerCase().includes(v)
 render(result);
 }
 
-/* RENDER DATA */
+/* RENDER */
 function render(data){
 
 list.innerHTML="";
@@ -234,7 +199,7 @@ WhatsApp Share
 });
 }
 
-/* WHATSAPP SHARE */
+/* WHATSAPP */
 function wa(no,name,mobile,map){
 
 let msg=`*PROJECT DETAILS*%0A
